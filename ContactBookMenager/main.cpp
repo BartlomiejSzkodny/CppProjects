@@ -23,12 +23,28 @@ int main(){
     std::cin >> choice;
     std::cin.ignore(); // Ignore newline character left in the buffer
 
-    
+    std::string number;
     switch (choice)
     {
         case 1:
             std::cout << "Enter contact name: ";
             std::getline(std::cin, contact);
+            if (contact.empty()) {
+                std::cout << "Contact name cannot be empty!" << std::endl;
+                break;
+            }
+            if (myBook.searchContact(contact)==1){
+                std::cout<<"Contact already exists!!"<<std::endl;
+                break;
+            }
+            std::cout << "Add Number: ";
+            std::getline(std::cin, number);
+            if (number.empty()) {
+                std::cout << "Contact number cannot be empty!" << std::endl;
+                break;
+            }
+            contact += ":" + number;
+
             myBook.addContact(contact);
             break;
         case 2:
@@ -42,7 +58,7 @@ int main(){
             if(ret==1)
             std::cout<<"found!!"<<std::endl;
             else
-            std::cout<<"not found!!"<<std::endl;\
+            std::cout<<"not found!!"<<std::endl;
             break;
         case 4:
             std::cout << "Enter name to delete: ";
@@ -55,7 +71,7 @@ int main(){
         default:
             std::cout << "Invalid choice! Please try again.\n";
     }
-    myBook.saveContacts(); // Save contacts to file before exiting
+    myBook.saveContacts();
 
     }
     

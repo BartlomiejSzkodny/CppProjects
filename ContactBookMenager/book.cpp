@@ -22,11 +22,12 @@ public:
     }
     int searchContact(const std::string& name)
     {
-        std::cout<<"looking for"<<name<<std::endl;
+        std::cout<<"looking for: "<<name<<std::endl;
         for(const auto& contact : contacts)
         {
             if(contact.find(name) != std::string::npos)
             {
+                std::cout << "Found: " << contact << std::endl;
                 return 1;
             }
         }
