@@ -6,6 +6,8 @@
 #include <fstream> // For file operations
 #include <sstream> // For std::istringstream
 #include <cstdlib> // For system("cls")
+#include <vector>  // For std::vector
+#include "event.cpp"
 
 void clearScreen() {
     // Clears the console screen
@@ -20,10 +22,44 @@ int write_to_calendar(int year, int month, int day, const std::string& event) {
     }
 
     // Write the date to the file
-    file << year << "-" << month << "-" << day << event<< "\n";
+    file << year << " " << month << " " << day << " " << event << "\n";
 
     // Close the file
     file.close();
+    return 0;
+}
+int read_from_calendar(std::vector<Event>& events) {
+    std::ifstream file("calendar.txt");
+    if (!file) {
+        std::cerr << "Error opening file for reading.\n";
+        return 1;
+    }
+
+    std::string line;
+    int year, month, day;
+    std::string event;
+    Event e;
+    while (std::getline(file, line)) {
+        std::istringstream iss(line);
+        if (!(iss >> e.year >> e.month >> e.day>>e.event)) {
+            std::cerr << "Error reading date from file.\n";
+            continue; // Skip this line if it can't be read
+        }else{
+            events.push_back(e); // Add the event to the vector
+            
+        }
+
+        
+       
+    }
+
+    file.close();
+    while(true) {
+        char key = _getch(); // Wait for user input
+        if (key == 'q') {
+            break; // Quit the program
+        }
+    }
     return 0;
 }
 
@@ -40,7 +76,7 @@ int get_last_day_of_month(int year, int month) {
     return time_in.tm_mday; // Return the last day of the month
 }
 
-void print_calendar(int currentDay, int year, int month, std::string event = "",bool writeMode = false) {
+void print_calendar(int currentDay, int year, int month, std::string event = "",bool writeMode = false, std::vector<Event> events = {}) {
     clearScreen();
     std::array<std::string, 12> month_names = {
         "January", "February", "March", "April", "May", "June",
@@ -73,7 +109,6 @@ void print_calendar(int currentDay, int year, int month, std::string event = "",
     }
 
     // Print the days of the month
-
     for (int day = 1; day <= days_in_month; ++day) {
         if (day == currentDay) {
             std::cout << "[" << (day < 10 ? " " : "") << day << "]"; // Highlight the current day
@@ -93,11 +128,34 @@ void print_calendar(int currentDay, int year, int month, std::string event = "",
                 }
                 std::cout << "|\n";
             } else {
-                std::cout << "|"; // End the line if it's the last day of the week
-                for (int i = 0; i < 28; ++i) {
-                    std::cout << " "; // Fill in the rest of the week with spaces
+                bool eventFound = false;
+                for (const auto& e : events) {
+                    if (e.year == year && e.month == month && e.day == currentDay) {
+                        std::cout << "|";
+                        for (int i = (int((starting_day + day)/7)-1)*28; i < (int((starting_day + day)/7))*28; ++i) {
+                            if(i < e.event.length()) {
+                                std::cout << e.event[i]; // Print the event if it exists
+                            }
+                            else {
+                                std::cout << " "; // Fill in the rest of the week with spaces
+                            }
+                        }
+                        std::cout << "|\n"; // End the line
+                        eventFound = true;
+                        break;
+                    }
                 }
-                std::cout << "|\n"; // End the line if it's the last day of the week
+                if (!eventFound) {
+                    std::cout << "|"; // End the line
+                    for (int i = 0; i < 28; ++i) {
+                        std::cout << " "; // Fill in the rest of the week with spaces
+                    }
+                    std::cout << "|\n"; // End the line
+                }
+
+                
+                
+                
             }
             
         }
@@ -126,7 +184,9 @@ int calendar_loop() {
     char key;
     bool writeMode = false; // Flag to indicate if we are in write mode
     std::string event;
-    print_calendar(currentDay, year, month);
+    std::vector<Event> events; // Vector to store events
+    read_from_calendar(events); // Read events from the calendar file
+    print_calendar(currentDay, year, month,event="",false,events); // Print the initial calendar
 
     while (true) {
         key = _getch(); // Get user input
@@ -153,6 +213,8 @@ int calendar_loop() {
                         write_to_calendar(year, month, currentDay, event); // Write the event to the calendar
                         std::cout << "Event saved: " << event << "\n"; // Show the saved event
                         event.clear(); // Clear the event string for next input
+                        events.clear(); // Clear the events vector
+                        read_from_calendar(events); // Read and display events from the calendar file
                     } else {
                         std::cout << "No event entered.\n"; // Show error message if no event was entered
                     }
@@ -198,33 +260,9 @@ int calendar_loop() {
             }
             
         }
-        print_calendar(currentDay, year, month, event); // Update the calendar display
+        print_calendar(currentDay, year, month,event="",false,events); // Update the calendar display
     }
 
     return 0;
 }
 
-int read_from_calendar() {
-    std::ifstream file("calendar.txt");
-    if (!file) {
-        std::cerr << "Error opening file for reading.\n";
-        return 1;
-    }
-
-    std::string line;
-    int year, month, day;
-    std::string event;
-    while (std::getline(file, line)) {
-        std::istringstream iss(line);
-        if (!(iss >> year >> month >> day)) {
-            std::cerr << "Error reading date from file.\n";
-            continue; // Skip this line if it can't be read
-        }
-
-        
-       
-    }
-
-    file.close();
-    return 0;
-}
