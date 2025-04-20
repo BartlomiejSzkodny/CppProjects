@@ -25,7 +25,7 @@ int get_last_day_of_month(int year, int month) {
     return time_in.tm_mday; // Return the last day of the month
 }
 
-void print_calendar(int currentDay, int year, int month) {
+void print_calendar(int currentDay, int year, int month, std::string event = "",bool writeMode = false) {
     clearScreen();
     std::array<std::string, 12> month_names = {
         "January", "February", "March", "April", "May", "June",
@@ -33,9 +33,9 @@ void print_calendar(int currentDay, int year, int month) {
     };
     std::cout << "Calendar - " << year << "-" << month_names[month-1] << "\n";
 
-    std::cout << "----------------------------|\n";
-    std::cout << " Sun Mon Tue Wed Thu Fri Sat|\n";
-    std::cout << "----------------------------|\n";
+    std::cout << "----------------------------|----------------------------|\n";
+    std::cout << " Sun Mon Tue Wed Thu Fri Sat|------------Event-----------|\n";
+    std::cout << "----------------------------|----------------------------|\n";
 
     int starting_day = get_starting_day_of_week(year, month);
     int days_in_month = 31; // Default to 31 days (adjust for specific months if needed)
@@ -58,26 +58,49 @@ void print_calendar(int currentDay, int year, int month) {
     }
 
     // Print the days of the month
+
     for (int day = 1; day <= days_in_month; ++day) {
         if (day == currentDay) {
             std::cout << "[" << (day < 10 ? " " : "") << day << "]"; // Highlight the current day
         } else {
             std::cout << " " << (day < 10 ? " " : "") << day << " ";
         }
-
+        
         if ((starting_day + day) % 7 == 0) {
-            std::cout << "|\n"; // New line after every Saturday
+            if (writeMode) {
+                std::cout << "|";
+                for (int i = (int((starting_day + day)/7)-1)*28; i < (int((starting_day + day)/7))*28; ++i) {
+                    if(i < event.length()) {
+                        std::cout << event[i]; // Print the event if it exists
+                    } else {
+                        std::cout << " "; // Fill in the rest of the week with spaces
+                    }
+                }
+                std::cout << "|\n";
+            } else {
+                std::cout << "|"; // End the line if it's the last day of the week
+                for (int i = 0; i < 28; ++i) {
+                    std::cout << " "; // Fill in the rest of the week with spaces
+                }
+                std::cout << "|\n"; // End the line if it's the last day of the week
+            }
+            
         }
     }
     if ((starting_day + days_in_month) % 7 != 0) {
         for (int i = (starting_day + days_in_month) % 7; i < 7; ++i) {
             std::cout << "    "; // Fill in the rest of the week with spaces
         }
-        std::cout << "|\n"; // End the last line
+
+            std::cout << "|"; // End the line
+            for (int i = 0; i < 28; ++i) {
+                std::cout << "-"; // Fill in the rest of the week with spaces
+            }
+            std::cout << "|\n"; // End the line
     }
     
 
-    std::cout << "----------------------------|\n";
+    std::cout << "----------------------------|----------------------------|\n";
     std::cout << "Use arrow keys to navigate. Press 'q' to quit.\n";
 }
 
@@ -86,7 +109,8 @@ int calendar_loop() {
     int year = 2025;    // Example year
     int month = 4;      // Example month (January)
     char key;
-
+    bool writeMode = false; // Flag to indicate if we are in write mode
+    std::string event;
     print_calendar(currentDay, year, month);
 
     while (true) {
@@ -94,6 +118,29 @@ int calendar_loop() {
 
         if (key == 'q') {
             break; // Quit the program
+        }
+        else if (key== 'w'){
+
+            //make it so that caracters dont show up on the screen, just are passed to the event string
+            std::cout << "Enter event: ";
+            char ch;
+            event.clear(); // Clear the event string
+            while (true) {
+                ch = _getch(); // Read a character
+                if (ch == '\r') { // Check for Enter key
+                    break;
+                } else if (ch == '\b') { // Handle backspace
+                    if (!event.empty()) {
+                        event.pop_back(); // Remove the last character
+                    }
+                } else if (ch >= 32 && ch <= 126) { // Only process printable characters
+                    event += ch; // Append the character to the event string
+                }
+                print_calendar(currentDay, year, month, event, true); // Update the calendar display
+            }
+
+
+            
         } else if (key == -32) { // Arrow key prefix
             key = _getch(); // Get the specific arrow key
             if (key == 75 && currentDay > 1) { // Left arrow
@@ -119,8 +166,9 @@ int calendar_loop() {
                     year += 1; // Move to the next year
                 }
             }
-            print_calendar(currentDay, year, month);
+            
         }
+        print_calendar(currentDay, year, month, event); // Update the calendar display
     }
 
     return 0;
@@ -156,7 +204,7 @@ int read_from_calendar() {
             std::cerr << "Error reading date from file.\n";
             continue; // Skip this line if it can't be read
         }
-        
+
         
        
     }
