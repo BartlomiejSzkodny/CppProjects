@@ -54,12 +54,6 @@ int read_from_calendar(std::vector<Event>& events) {
     }
 
     file.close();
-    while(true) {
-        char key = _getch(); // Wait for user input
-        if (key == 'q') {
-            break; // Quit the program
-        }
-    }
     return 0;
 }
 
@@ -186,7 +180,7 @@ int calendar_loop() {
     std::string event;
     std::vector<Event> events; // Vector to store events
     read_from_calendar(events); // Read events from the calendar file
-    print_calendar(currentDay, year, month,event="",false,events); // Print the initial calendar
+    print_calendar(currentDay, year, month); // Print the initial calendar
 
     while (true) {
         key = _getch(); // Get user input
