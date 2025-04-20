@@ -11,6 +11,21 @@ void clearScreen() {
     // Clears the console screen
     system("cls");
 }
+int write_to_calendar(int year, int month, int day, const std::string& event) {
+    // Open the file in append mode
+    std::ofstream file("calendar.txt", std::ios::app);
+    if (!file) {
+        std::cerr << "Error opening file for writing.\n";
+        return 1;
+    }
+
+    // Write the date to the file
+    file << year << "-" << month << "-" << day << event<< "\n";
+
+    // Close the file
+    file.close();
+    return 0;
+}
 
 int get_starting_day_of_week(int year, int month) {
     std::tm time_in = {0, 0, 0, 1, month - 1, year - 1900}; // Set to the 1st day of the given month
@@ -122,21 +137,36 @@ int calendar_loop() {
         else if (key== 'w'){
 
             //make it so that caracters dont show up on the screen, just are passed to the event string
-            std::cout << "Enter event: ";
+            if(event.length() > 28*4) {
+                std::cout << "Event is too long. Please limit to 28 characters.\n";
+                continue; // Skip writing if the event is too long
+            } else {
+                std::cout << "Enter event:.\n";
+            }
+            
             char ch;
             event.clear(); // Clear the event string
             while (true) {
                 ch = _getch(); // Read a character
                 if (ch == '\r') { // Check for Enter key
+                    if (event.length() > 0) {
+                        write_to_calendar(year, month, currentDay, event); // Write the event to the calendar
+                        std::cout << "Event saved: " << event << "\n"; // Show the saved event
+                        event.clear(); // Clear the event string for next input
+                    } else {
+                        std::cout << "No event entered.\n"; // Show error message if no event was entered
+                    }
                     break;
                 } else if (ch == '\b') { // Handle backspace
                     if (!event.empty()) {
                         event.pop_back(); // Remove the last character
+                        print_calendar(currentDay, year, month, event, true); // Update the calendar display
                     }
-                } else if (ch >= 32 && ch <= 126) { // Only process printable characters
+                } else if (ch >= 32 && ch <= 126 && (event.length()<(4*28))) { // Only process printable characters
                     event += ch; // Append the character to the event string
+                    print_calendar(currentDay, year, month, event, true); // Update the calendar display
                 }
-                print_calendar(currentDay, year, month, event, true); // Update the calendar display
+                
             }
 
 
@@ -173,21 +203,7 @@ int calendar_loop() {
 
     return 0;
 }
-int write_to_calendar(int year, int month, int day, const std::string& event) {
-    // Open the file in append mode
-    std::ofstream file("calendar.txt", std::ios::app);
-    if (!file) {
-        std::cerr << "Error opening file for writing.\n";
-        return 1;
-    }
 
-    // Write the date to the file
-    file << year << "-" << month << "-" << day << event<< "\n";
-
-    // Close the file
-    file.close();
-    return 0;
-}
 int read_from_calendar() {
     std::ifstream file("calendar.txt");
     if (!file) {
