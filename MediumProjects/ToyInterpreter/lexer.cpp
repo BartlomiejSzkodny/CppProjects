@@ -28,7 +28,7 @@ int printTokenBuffer(const std::vector<Token>& tokenBuffer) {
     }
     return 0;
 }
-int lexer(const char* filename) {
+int lexer(const char* filename, std::vector<Token>& tokenBuffer) {
     // Open the file in read mode
     std::vector<Line> lineBuffer; // Vector to store lines
     int lineNumber = 1;
@@ -56,7 +56,6 @@ int lexer(const char* filename) {
         // Process the line (for example, print it)
     }
     printLineBuffer(lineBuffer); // Print the line buffer
-    std::vector<Token> tokenBuffer; // Vector to store tokens
     for (auto& line : lineBuffer) {
         for(int i = 0; i < line.lineContent.length(); i++) {
             Token token;
@@ -105,9 +104,7 @@ int lexer(const char* filename) {
                 while (i < line.lineContent.length() && line.lineContent[i] != '"') {
                     token.symbol += line.lineContent[i++]; // Append characters to the symbol until closing quote
                 }
-                if (i < line.lineContent.length()) {
-                    i++; // Move past the closing quote
-                }
+
             } else if (line.lineContent[i] == '\'') {
                 token.type = tokenType::Char; // Set the token type to Char
                 i++; // Move past the opening quote

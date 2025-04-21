@@ -1,3 +1,6 @@
+#ifndef TOKEN_H
+#define TOKEN_H
+
 #include <string>
 enum class tokenType {
     Semicolon,
@@ -94,3 +97,4 @@ public:
     }
 
 };
+#endif // TOKEN_H
