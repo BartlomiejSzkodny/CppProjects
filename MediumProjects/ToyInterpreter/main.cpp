@@ -1,5 +1,5 @@
 //https://toylang.com/getting_started/quick-start-guide/#/getting_started/
-#include "importer.h"
+#include "lexer.h"
 
 int main(int argc, char const *argv[])
 {
@@ -15,6 +15,6 @@ int main(int argc, char const *argv[])
         std::cerr << "Lexer failed with error code: " << result << "\n";
         return result;
     }
-    
+
     return 0;
 }

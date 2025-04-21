@@ -2,7 +2,8 @@
 #include <fstream>  // For file operations
 #include <string>   // For std::string
 #include <vector>  // For std::vector
-#include "structures.cpp"
+#include "token.h"
+#include "structures.cpp" // Include the structures header file
 #include <iomanip> // Include for std::setw
 
 int printLineBuffer(const std::vector<Line>& lineBuffer) {
@@ -68,9 +69,11 @@ int lexer(const char* filename) {
                 token.symbol = ";"; // Set the symbol for the token
             } else if (isdigit(line.lineContent[i])) {
                 while (i < line.lineContent.length() && isdigit(line.lineContent[i])) {
-                    token.symbol += line.lineContent[i++]; // Append digits to the symbol
+                    token.symbol += line.lineContent[i]; // Append digits to the symbol
+                    i++; // Move to the next character
                 }
                 token.type = tokenType::Number; // Set the token type to Number
+                i--; // Step back one position to reprocess the current character if it's not part of the number
 
             } else if (line.lineContent[i] == '+') {
                 token.type = tokenType::Plus; // Set the token type to Plus
