@@ -71,7 +71,7 @@ int lexer(const char* filename, std::vector<Token>& tokenBuffer) {
                     token.symbol += line.lineContent[i]; // Append digits to the symbol
                     i++; // Move to the next character
                 }
-                token.type = tokenType::Number; // Set the token type to Number
+                token.type = tokenType::Value; // Set the token type to Number
                 i--; // Step back one position to reprocess the current character if it's not part of the number
 
             } else if (line.lineContent[i] == '+') {
@@ -99,14 +99,14 @@ int lexer(const char* filename, std::vector<Token>& tokenBuffer) {
                 token.type = tokenType::Modulus; // Set the token type to Modulus
                 token.symbol = line.lineContent[i]; // Set the symbol for the token
             }  else if (line.lineContent[i] == '"') {
-                token.type = tokenType::String; // Set the token type to String
+                token.type = tokenType::Value; // Set the token type to String
                 i++; // Move past the opening quote
                 while (i < line.lineContent.length() && line.lineContent[i] != '"') {
                     token.symbol += line.lineContent[i++]; // Append characters to the symbol until closing quote
                 }
 
             } else if (line.lineContent[i] == '\'') {
-                token.type = tokenType::Char; // Set the token type to Char
+                token.type = tokenType::Value; // Set the token type to Char
                 i++; // Move past the opening quote
                 while (i < line.lineContent.length() && line.lineContent[i] != '\'') {
                     token.symbol += line.lineContent[i++]; // Append characters to the symbol until closing quote
@@ -119,21 +119,21 @@ int lexer(const char* filename, std::vector<Token>& tokenBuffer) {
                 token.symbol = line.lineContent.substr(i); // Set the symbol to the rest of the line
                 break; // Stop processing the line after the comment
             }else if (line.lineContent[i]=='<') {
-                token.type = tokenType::LessThan; // Set the token type to LessThan
+                token.type = tokenType::Comparison; // Set the token type to LessThan
                 token.symbol = line.lineContent[i]; // Set the symbol for the token
             }else if (line.lineContent[i]=='>') {
-                token.type = tokenType::GreaterThan; // Set the token type to GreaterThan
+                token.type = tokenType::Comparison; // Set the token type to GreaterThan
                 token.symbol = line.lineContent[i]; // Set the symbol for the token
             }else if (line.lineContent[i]=='!' && line.lineContent[i+1]=='=') {
-                token.type = tokenType::NotEqual; // Set the token type to NotEqual
+                token.type = tokenType::Comparison; // Set the token type to NotEqual
                 token.symbol = line.lineContent[i]; // Set the symbol for the token
                 i++; // Move past the '='
             }else if (line.lineContent[i]=='<' && line.lineContent[i+1]=='=') {
-                token.type = tokenType::LessThanOrEqual; // Set the token type to LessThanOrEqual
+                token.type = tokenType::Comparison; // Set the token type to LessThanOrEqual
                 token.symbol = line.lineContent[i]; // Set the symbol for the token
                 i++; // Move past the '='
             }else if (line.lineContent[i]=='>' && line.lineContent[i+1]=='=') {
-                token.type = tokenType::GreaterThanOrEqual; // Set the token type to GreaterThanOrEqual
+                token.type = tokenType::Comparison; // Set the token type to GreaterThanOrEqual
                 token.symbol = line.lineContent[i]; // Set the symbol for the token
                 i++; // Move past the '='
             }else if (line.lineContent[i]=='&' && line.lineContent[i+1]=='&') {
@@ -145,7 +145,7 @@ int lexer(const char* filename, std::vector<Token>& tokenBuffer) {
                 token.symbol = line.lineContent[i]; // Set the symbol for the token
                 i++; // Move past the '|'
             }else if (line.lineContent[i]=='=' && line.lineContent[i+1]=='=') {
-                token.type = tokenType::Equal; // Set the token type to Equal
+                token.type = tokenType::Comparison; // Set the token type to Equal
                 token.symbol = line.lineContent[i]; // Set the symbol for the token
                 i++; // Move past the '='
             }else if (line.lineContent[i]=='{') {
@@ -174,7 +174,7 @@ int lexer(const char* filename, std::vector<Token>& tokenBuffer) {
                 } else if (token.symbol == "for") {
                     token.type = tokenType::For; // Set the token type to For
                 } else if (token.symbol == "true" || token.symbol == "false") {
-                    token.type = tokenType::Boolean; // Set the token type to Boolean
+                    token.type = tokenType::Value; // Set the token type to Boolean
                 } else if (token.symbol == "var") {
                     token.type = tokenType::VariableId; // Set the token type to Variable
                 } else if (token.symbol == "print") {

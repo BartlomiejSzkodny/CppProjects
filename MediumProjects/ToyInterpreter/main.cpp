@@ -19,7 +19,8 @@ int main(int argc, char const *argv[])
         return result;
     }
     Parser parser; // Create a Parser object
-    parser.parse(tokenBuffer); // Call the parse function with the token buffer
+    int index = 0; // Initialize the index for parsing
+    parser.parse(tokenBuffer,index); // Call the parse function with the token buffer
 
     return 0;
 }

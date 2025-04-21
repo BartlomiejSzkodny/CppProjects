@@ -8,94 +8,165 @@
 
 class Parser {
 public:
-int parse(const std::vector<Token>& tokens) {
-    // Implement parsing logic here
-    // This is a placeholder implementation
-    for(int i = 0; i < tokens.size(); ++i) {
-        if (tokens[i].type == tokenType::Variable){
-            if (tokens[i + 1].type == tokenType::Assign) {
-                std::cout << "Assignment operator found\n"; // Print the assignment operator found
-            } else if (tokens[i + 1].type == tokenType::Semicolon) {
-                std::cout << "Initialization found\n"; // Print the semicolon found
-            }
-        } else if (tokens[i].type == tokenType::Print) {
-            if (tokens[i + 1].type == tokenType::String) {
-                std::cout << "Print string found\n"; // Print the print statement found
-            } else if (tokens[i + 1].type == tokenType::Variable) {
-                std::cout << "Print variable found\n"; // Print the print variable found
-            } else if (tokens[i + 1].type == tokenType::Semicolon) {
-                std::cout << "Print statement without argument found\n"; // Print the print statement without argument found
-            }
-                
-        } else if (tokens[i].type == tokenType::If) {
-            if (tokens[i + 1].type == tokenType::RoundBracketOpen) {
-                std::cout << "If condition found\n"; // Print the if statement found
-                int j = i + 2; // Start looking for the condition after the opening bracket
-                while (tokens[j].type != tokenType::RoundBracketClose && j < tokens.size()) {
-                    ++j; // Skip to the closing bracket
-                }
-                std::cout << "If condition ends at index: " << j << "\n"; // Print the index of the closing bracket
-                if (tokens[j + 1].type == tokenType::CurlyBracketOpen) {
-                    std::cout << "If block found\n"; // Print the if block found
-                    int k = j + 2; // Start looking for the closing bracket after the opening bracket
-                    while (tokens[k].type != tokenType::CurlyBracketClose && k < tokens.size()) {
-                        ++k; // Skip to the closing bracket
-                    }
-                    std::cout << "If block ends at index: " << k << "\n"; // Print the index of the closing bracket
-                } else {
-                    std::cout << "If statement without block found\n"; // Print the if statement without block found
-                }
-                
-            } else {
-                std::cout << "If statement without condition found\n"; // Print the if statement without condition found
-            }
-        } else if (tokens[i].type == tokenType::Else) {
-            if (tokens[i + 1].type == tokenType::If) {
-                std::cout << "Else if statement found\n"; // Print the else if statement found
-            } else if (tokens[i + 1].type == tokenType::CurlyBracketOpen) {
-                std::cout << "Else block found\n"; // Print the else block found
-                int j = i + 2; // Start looking for the closing bracket after the opening bracket
-                while (tokens[j].type != tokenType::CurlyBracketClose && j < tokens.size()) {
-                    ++j; // Skip to the closing bracket
-                }
-                std::cout << "Else block ends at index: " << j << "\n"; // Print the index of the closing bracket
-            } else {
-                std::cout << "Else statement found\n"; // Print the else statement found
-                int k = i + 1; // Start looking for the closing bracket after the else statement
-                while (tokens[i].type != tokenType::CurlyBracketClose && k < tokens.size()) {
-                    ++k; // Skip to the closing bracket
-                }
-            }
-        } else if (tokens[i].type == tokenType::While) {
-            std::cout << "While statement found\n"; // Print the while statement found
-            if (tokens[i + 1].type == tokenType::RoundBracketOpen) {
-                std::cout << "While condition found\n"; // Print the while condition found
-                int j = i + 2; // Start looking for the condition after the opening bracket
-                while (tokens[j].type != tokenType::RoundBracketClose && j < tokens.size()) {
-                    ++j; // Skip to the closing bracket
-                }
-                std::cout << "While condition ends at index: " << j << "\n"; // Print the index of the closing bracket
-                if (tokens[j + 1].type == tokenType::CurlyBracketOpen) {
-                    std::cout << "While block found\n"; // Print the while block found
-                    int k = j + 2; // Start looking for the closing bracket after the opening bracket
-                    while (tokens[k].type != tokenType::CurlyBracketClose && k < tokens.size()) {
-                        ++k; // Skip to the closing bracket
-                    }
-                    std::cout << "While block ends at index: " << k << "\n"; // Print the index of the closing bracket
-                } else {
-                    std::cout << "While statement without block found\n"; // Print the while statement without block found
-                }
-            } else {
-                std::cout << "While statement without condition found\n"; // Print the while statement without condition found
-            }
-        } else if (tokens[i].type == tokenType::For) {
-            std::cout << "For statement found\n"; // Print the for statement found
-        } else if (tokens[i].type == tokenType::Semicolon) {
-            std::cout << "Semicolon found\n"; // Print the semicolon found
+int parse(const std::vector<Token>& tokens, int& index) {
+     // Implement the parsing logic here
+     // For demonstration, we'll just print the tokens
+     while (index < tokens.size()) {
+        if (tokens[index].type == tokenType::CurlyBracketClose) {
+            return 0; // Skip semicolon
+        }
+        // Parsing assignment statements
+        else if (tokens[index].type == tokenType::Assign) {
+            parseAssignment(tokens, index);
+        }
+        // Parsing print statements
+        else if (tokens[index].type == tokenType::Print) {
+            parsePrint(tokens, index);
+        }
+        // Parsing comparison statements
+        else if (tokens[index].type == tokenType::Comparison) {
+            parseComparison(tokens, index);
+        }
+        // Parsing if statements
+        else if (tokens[index].type == tokenType::If) {
+            parseIf(tokens, index);
+        }
+        // Parsing else statements
+        else if (tokens[index].type == tokenType::Else) {
+            parseElse(tokens, index);
+        }
+        // Increment index to avoid infinite loops
+
+        else {
+            ++index;
         }
     }
     return 0; // Return 0 on success
+
 }
+int parseAssignment(const std::vector<Token>& tokens, int& index) {
+    if (tokens[index].type == tokenType::Assign) {
+        if (tokens[index+1].type==tokenType::Value && tokens[index+2].type==tokenType::Semicolon && tokens[index-1].type==tokenType::Variable) {
+            std::cout << "Assignment: " << tokens[index-1].symbol << " = " << tokens[index+1].symbol << std::endl;
+            index += 2; // Skip the value and the semicolon
+        } else {
+            std::cerr << "Error: Invalid assignment at line " << tokens[index].lineNumber << ", column " << tokens[index].columnNumber << std::endl;
+
+        }
+
+    }
+    // Implement the parsing logic for assignment statements here
+    return 0; // Return 0 on success
+};
+int parsePrint(const std::vector<Token>& tokens, int& index) {
+    if (tokens[index].type == tokenType::Print) {
+        if (tokens[index+1].type==tokenType::Value || tokens[index+1].type==tokenType::Variable) {
+            std::cout << "Print: " << tokens[index+1].symbol << std::endl;
+            index++;
+        } else {
+            std::cerr << "Error: Invalid print statement at line " << tokens[index].lineNumber << ", column " << tokens[index].columnNumber << std::endl;
+        }
+    }
+    return 0; // Return 0 on success
+};
+
+int parseComparison(const std::vector<Token>& tokens, int& index) {
+    if (tokens[index].type == tokenType::Comparison) {
+        if ((tokens[index-1].type == tokenType::Value || tokens[index-1].type == tokenType::Variable) &&
+            (tokens[index+1].type == tokenType::Value || tokens[index+1].type == tokenType::Variable)) {
+            std::cout << "Comparison: " 
+                      << tokens[index-1].symbol << " " 
+                      << tokens[index].symbol << " " 
+                      << tokens[index+1].symbol << std::endl;
+            index += 1; // move past comparison operator
+        } else {
+            std::cerr << "Error: Invalid comparison at line " 
+                      << tokens[index].lineNumber << ", column " 
+                      << tokens[index].columnNumber << std::endl;
+        }
+    }
+    return 0;
+}
+
+
+int parseIf(const std::vector<Token>& tokens, int& index) {
+    if (tokens[index+1].type == tokenType::RoundBracketOpen) {
+        std::cout << "If statement: " << tokens[index].symbol << std::endl;
+        index += 2; // Skip 'if' and '('
+        
+        while (index < tokens.size()) {
+            if (tokens[index].type == tokenType::RoundBracketClose) {
+                std::cout << "End of if condition" << std::endl;
+                index++; // Move past ')'
+                break;
+            }
+            if (tokens[index].type == tokenType::Comparison) {
+                parseComparison(tokens, index);
+            }
+            index++;
+        }
+        
+        if (index < tokens.size() && tokens[index].type == tokenType::CurlyBracketOpen) {
+            std::cout << "If block starts" << std::endl;
+            index++; // Move past '{'
+
+            while (index < tokens.size()) {
+                if (tokens[index].type == tokenType::CurlyBracketClose) {
+                    break;
+                }
+                parse(tokens, index); // Parse anything inside the block
+            }
+            if (index < tokens.size() && tokens[index].type == tokenType::CurlyBracketClose) {
+                std::cout << "End of if block" << std::endl;
+                index++; // Move past '}'
+            } else {
+                std::cerr << "Error: Missing closing curly bracket in if block" << std::endl;
+            }
+        } else {
+            std::cerr << "Error: Missing '{' after if condition" << std::endl;
+        }
+    } else {
+        std::cerr << "Error: Invalid if statement at line " 
+                  << tokens[index].lineNumber << ", column " 
+                  << tokens[index].columnNumber << std::endl;
+    }
+    return 0;
+}
+
+int parseElse(const std::vector<Token>& tokens, int& index) {
+    if (tokens[index].type == tokenType::Else) {
+        std::cout << "Else statement: " << tokens[index].symbol << std::endl;
+        index++; // Move past 'else'
+
+        if (tokens[index].type == tokenType::CurlyBracketOpen) {
+            std::cout << "Else block starts" << std::endl;
+            index++; // Move past '{'
+
+            while (index < tokens.size()) {
+                if (tokens[index].type == tokenType::CurlyBracketClose) {
+                    break;
+                }
+                parse(tokens, index); // Parse anything inside the block
+            }
+            if (index < tokens.size() && tokens[index].type == tokenType::CurlyBracketClose) {
+                std::cout << "End of else block" << std::endl;
+                index++; // Move past '}'
+            } else {
+                std::cerr << "Error: Missing closing curly bracket in else block" << std::endl;
+            }
+        } else {
+            std::cerr << "Error: Missing '{' after else" << std::endl;
+        }
+    } else {
+        std::cerr << "Error: Invalid else statement at line "
+                  << tokens[index].lineNumber << ", column "
+                  << tokens[index].columnNumber << std::endl;
+    }
+    return 0;
+}
+
+
+
 };
 
 #endif // PARSER_H
