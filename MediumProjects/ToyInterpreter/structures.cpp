@@ -29,7 +29,9 @@ enum class tokenType {
     AND,
     OR,
     Variable,
-    Print
+    Print,
+    VariableId,
+    Unknown
 
 };
 
@@ -77,6 +79,7 @@ public:
             case tokenType::OR: return "OR";
             case tokenType::Variable: return "Variable";
             case tokenType::Print: return "Print";
+            case tokenType::VariableId: return "VariableId";
             default: return "Unknown";
         }
     }

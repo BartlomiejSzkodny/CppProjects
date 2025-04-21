@@ -3,6 +3,7 @@
 #include <string>   // For std::string
 #include <vector>  // For std::vector
 #include "structures.cpp"
+#include <iomanip> // Include for std::setw
 
 int printLineBuffer(const std::vector<Line>& lineBuffer) {
     for (const auto& line : lineBuffer) {
@@ -11,8 +12,18 @@ int printLineBuffer(const std::vector<Line>& lineBuffer) {
     return 0;
 }
 int printTokenBuffer(const std::vector<Token>& tokenBuffer) {
+    
+
+    std::cout << std::left << std::setw(40) << "Symbol" 
+              << std::setw(20) << "Type" 
+              << std::setw(10) << "Line" 
+              << "Column\n"; // Print header
+    std::cout << "-------------------------------------------------------------------------------------\n";
     for (auto token : tokenBuffer) {
-        std::cout << "Token: " << token.symbol << ", Type: " << token.tokenTypeToString() << ", Line: " << token.lineNumber << ", Column: " << token.columnNumber << "\n"; // Print the token details
+        std::cout << std::left << std::setw(40) << token.symbol 
+                  << std::setw(20) << token.tokenTypeToString() 
+                  << std::setw(10) << token.lineNumber 
+                  << token.columnNumber << "\n"; // Print each token in columns
     }
     return 0;
 }
@@ -56,8 +67,11 @@ int lexer(const char* filename) {
                 token.type = tokenType::Semicolon; // Set the token type to Semicolon
                 token.symbol = ";"; // Set the symbol for the token
             } else if (isdigit(line.lineContent[i])) {
+                while (i < line.lineContent.length() && isdigit(line.lineContent[i])) {
+                    token.symbol += line.lineContent[i++]; // Append digits to the symbol
+                }
                 token.type = tokenType::Number; // Set the token type to Number
-                token.symbol = line.lineContent[i]; // Set the symbol for the token
+
             } else if (line.lineContent[i] == '+') {
                 token.type = tokenType::Plus; // Set the token type to Plus
                 token.symbol = line.lineContent[i]; // Set the symbol for the token
@@ -162,12 +176,12 @@ int lexer(const char* filename) {
                 } else if (token.symbol == "true" || token.symbol == "false") {
                     token.type = tokenType::Boolean; // Set the token type to Boolean
                 } else if (token.symbol == "var") {
-                    token.type = tokenType::Variable; // Set the token type to Variable
+                    token.type = tokenType::VariableId; // Set the token type to Variable
                 } else if (token.symbol == "print") {
                     token.type = tokenType::Print; // Set the token type to Print
                 }
                 else {
-                    token.type = tokenType::String; // Set the token type to Variable
+                    token.type = tokenType::Variable; // Set the token type to Variable
                 }
             }
             tokenBuffer.push_back(token); // Add the token to the buffer
